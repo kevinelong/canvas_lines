@@ -1,5 +1,5 @@
 <body style="margin:0;padding:0;">
-    <canvas id="canvas" style="background:silver"></canvas> 
+    <canvas id="canvas" style="background:black"></canvas> 
 </body>
 <script>
     var c = document.getElementById("canvas");
@@ -8,24 +8,28 @@
 
     var ctx = c.getContext("2d");
 
-	ctx.strokeStyle = "red";
-	ctx.lineWidth = 3;
+	ctx.strokeStyle = "green";
+	ctx.lineWidth = 12;
 
     function line(x1,y1,x2,y2){
         ctx.beginPath();
-	ctx.moveTo(x1, y1);
+		ctx.moveTo(x1, y1);
         ctx.lineTo(x2,y2);
         ctx.stroke();
     }
-
+	const GRAVITY = 3;
 	const LIMIT = 12;
 	const lines = []
+	function getRandomDelta(){
+		return Math.floor((Math.random()-0.5) * c.height/8);
+	}
+
 	for(let i = 0; i < LIMIT; i++){
 		lines.push([
 			Math.floor(Math.random() * c.width), 
 			Math.floor(Math.random() * c.height),
-			Math.floor((Math.random()- 0.5) * 20),
-			Math.floor((Math.random()- 0.5) * 20)
+			getRandomDelta(),
+			getRandomDelta(),
 		]);
 	}
 
@@ -42,14 +46,18 @@
 				lines[i][3] = dy,
 			];
 			if(next[0]+dx > c.width || next[0]+dx < 0){
-				dx = -dx;
+				dx = -dx * 0.9;
 			}
 			if(next[1]+dy > c.height || next[1]+dy < 0){
-				dy = -dy;
+				dy = -dy * 0.9;
 			}
 			next[2]=dx;
-			next[3]=dy;
+			next[3]=dy + GRAVITY;
 			line(next[0], next[1], next[0] + dx, next[1] + dy);
+			if(dy < 1 && next[1] > c.height){
+				next[2] = getRandomDelta();
+				next[3] = -Math.abs(getRandomDelta());
+			}
 			lines[i] = next;
 		};
 		window.requestAnimationFrame(step);
